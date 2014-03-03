@@ -16,6 +16,7 @@
 from __future__ import print_function
 from optparse import OptionParser
 from os import path
+import pipes
 
 from sys import stderr
 from util import check_output
@@ -62,14 +63,16 @@ else:
 
 for spec in args.s:
   artifact, packaging_type, src = spec.split(':')
+  cmds = cmd + [
+    '-DartifactId=%s' % artifact,
+    '-Dpackaging=%s' % packaging_type,
+    '-Dfile=%s' % src,
+  ]
   try:
-    check_output(cmd + [
-      '-DartifactId=%s' % artifact,
-      '-Dpackaging=%s' % packaging_type,
-      '-Dfile=%s' % src,
-    ])
+    check_output(cmds)
   except Exception as e:
-    print('%s command failed: %s' % (args.a, e), file=stderr)
+    cmds_str = ' '.join(pipes.quote(c) for c in cmds)
+    print("%s command failed: `%s`: %s" % (args.a, cmds_str, e), file=stderr)
     exit(1)
 
 with open(args.o, 'w') as fd:
