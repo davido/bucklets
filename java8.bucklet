@@ -1,4 +1,25 @@
-# see https://github.com/facebook/buck/pull/67
+# Current Buck version lacks support to overwrite Java version
+# in .buckconfig file, under Java section, e. g.:
+#
+# [java]
+#   src_roots = java, resources
+#   source = 8
+#   target = 8
+#
+# Instead, the documentaion suggests to provide Java version in
+# each and every java_library() call.
+#
+# This bucklet overwrites the definition of original java_library
+# and java_test rules.
+#
+# Example: this bucklet must be used in .buckconfig file, under
+# include section to ensure, that this file is seen before others:
+#
+# [buildfile]
+#   includes = //bucklets/java8.bucklet
+#
+# @See https://github.com/facebook/buck/pull/67
+#
 original_java_library = java_library
 def java_library(
     name,

@@ -1,6 +1,32 @@
 #
 # Fetch artifacts from Maven repository
-# see: https://github.com/facebook/buck/issues/64
+#
+# name: (required) The name of the rule.
+# id: (required) Maven group id, artifact id and version in the form: g:a:v
+# exclude: (defaults to []) Rules to exlude from resulting maven JAR
+# exclude_java_sources: (default to False) should java source be included
+# unsign: (default to False): should this archive be unsigned
+# deps: (defaults to []) Rules (usually other java_library rules) that are
+#        included as transitive dependency of this Maven JAR
+# exported_deps: (defaults to []) Whether or not depending on this rule should
+#        also transitively pull in all of its dependencies.
+# sha1: SHA-1 of binary artifact
+# bin_sha1: SHA-1 of binary artifact
+# src_sha1: SHA-1 of src artifact
+# repository: (default to MAVEN_CENTRAL) repository name
+# attach_source: (default to True): should the sources be fetched
+# visibility (defaults to ['PUBLIC']) List of build target patterns that
+# identify the build rules that can include this rule in its deps.
+#
+# Example:
+#
+# maven_jar(
+#   name = 'guava',
+#   id = 'com.google.guava:guava:16.0',
+#   sha1 = 'aca09d2e5e8416bf91550e72281958e35460be52',
+# )
+#
+# @See: https://github.com/facebook/buck/issues/64
 #
 
 GERRIT = 'GERRIT:'

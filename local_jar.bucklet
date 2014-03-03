@@ -8,17 +8,19 @@
 # local Maven repository and fetching it again from there out of the picture,
 # `local_jar()` method is used:
 #
+# Example:
+#
 # local_jar(
 #   name = 'jgit',
 #   jar = '/home/<user>/projects/jgit/org.eclipse.jgit/target/org.eclipse.jgit-3.3.0-SNAPSHOT.jar',
-#   src = '/home/<user>/projects/jgit/org.eclipse.jgit/target/org.eclipse.jgit-3.3.0-SNAPSHOT-sources.jar',
+#   src_jar = '/home/<user>/projects/jgit/org.eclipse.jgit/target/org.eclipse.jgit-3.3.0-SNAPSHOT-sources.jar',
 #   deps = [':ewah']
 # )
-
+#
 def local_jar(
     name,
     jar,
-    src = None,
+    src_jar = None,
     deps = [],
     visibility = ['PUBLIC']):
   binjar = name + '.jar'
@@ -27,10 +29,10 @@ def local_jar(
     name = name + '__local_bin',
     cmd = 'ln -s %s $OUT' % jar,
     out = binjar)
-  if src:
+  if src_jar:
     genrule(
       name = name + '__local_src',
-      cmd = 'ln -s %s $OUT' % src,
+      cmd = 'ln -s %s $OUT' % src_jar,
       out = srcjar)
     prebuilt_jar(
       name = name + '_src',

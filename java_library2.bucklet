@@ -1,7 +1,20 @@
 # Compiles a Java library with additional compile-time dependencies
 # that do not show up as transitive dependencies to java_library()
 # or java_binary() rule that depends on this library.
-# work around for: https://github.com/facebook/buck/issues/63
+#
+# Example: servlet library needs to be compiled against servlet API
+# but this dependency must not become a transitive dependency.
+#
+# java_library2(
+#   name = 'gitiles-servlet',
+#   srcs = SRCS,
+#   resources = RSRC,
+#   deps = DEPS,
+#   compile_deps = ['//lib:servlet-api'],
+#   visibility = ['PUBLIC'],
+# )
+# @See: https://github.com/facebook/buck/issues/63
+#
 def java_library2(
     name,
     srcs = [],

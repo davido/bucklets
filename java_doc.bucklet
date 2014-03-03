@@ -1,3 +1,17 @@
+# This bucklet simplifies creation of Javadocs
+#
+# Example:
+#
+# java_doc(
+#   name = 'javadoc',
+#   title = 'Gitiles API Documentation',
+#   pkg = 'com.google.gitiles',
+#   paths = ['gitiles-servlet/src/main/java'],
+#   srcs = glob([n + '**/*.java' for n in SRCS]),
+#   deps = DEPS,
+#   visibility = ['PUBLIC'],
+# )
+#
 def java_doc(
     name,
     title,

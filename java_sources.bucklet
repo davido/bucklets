@@ -1,3 +1,13 @@
+# This bucklet simplifies creation of Java source archives
+#
+# Example:
+#
+# java_sources(
+#   name = 'src',
+#   srcs = SRCS + RSRC,
+#   visibility = ['PUBLIC'],
+# )
+#
 def java_sources(
     name,
     srcs,

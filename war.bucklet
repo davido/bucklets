@@ -1,3 +1,16 @@
+# This bucklet simplifies creation of war archives.
+#
+# Example:
+#
+# war(
+#   name = 'gitiles',
+#   libs = ['//gitiles-servlet:servlet'],
+#   context = [
+#     ':recourses.zip',
+#   ],
+#   visibility = ['PUBLIC']
+# )
+#
 def war(
     name,
     libs = [],
