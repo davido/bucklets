@@ -20,6 +20,7 @@
 #   repository = 'gerrit-api-repository',
 #   url = 'gs://gerrit-api/release',
 #   version = '1.0',
+#   group = 'com.google.gitiles',
 #   jar = {'gitiles-servlet': '//gitiles-servlet:servlet'},
 #   src = {'gitiles-servlet': '//gitiles-servlet:src'},
 #   doc = {'gitiles-servlet': '//gitiles-servlet:javadoc'},
@@ -29,10 +30,16 @@ def maven_package(
     version,
     repository = None,
     url = None,
+    group = None,
     jar = {},
     src = {},
     doc = {}):
-  cmd = ['$(exe //bucklets/tools:mvn)', '-v', version, '-o', '$OUT']
+  cmd = [
+    '$(exe //bucklets/tools:mvn)',
+    '-g', group,
+    '-v', version,
+    '-o', '$OUT',
+  ]
   dep = []
 
   for type,d in [('jar', jar), ('java-source', src), ('javadoc', doc)]:

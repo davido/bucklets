@@ -31,17 +31,21 @@ opts = OptionParser()
 opts.add_option('--repository', help='maven repository id')
 opts.add_option('--url', help='maven repository url')
 opts.add_option('-o')
+opts.add_option('-g', help='maven group id')
 opts.add_option('-a', help='action (valid actions are: install,deploy)')
-opts.add_option('-v', help='gerrit version')
+opts.add_option('-v', help='package version')
 opts.add_option('-s', action='append', help='triplet of artifactId:type:path')
 
 args, ctx = opts.parse_args()
+if not args.g:
+  print('group is empty', file=stderr)
+  exit(1)
 if not args.v:
   print('version is empty', file=stderr)
   exit(1)
 
 common = [
-  '-DgroupId=com.google.gerrit',
+  '-DgroupId=%s' % args.g,
   '-Dversion=%s' % args.v,
 ]
 
