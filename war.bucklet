@@ -48,7 +48,9 @@ def war(
       dep.append(r[:r.rindex('.')])
       if r.startswith('//'):
         r = root + r[2:]
-      r = r.replace(':', '/')
+        r = r.replace(':', '/')
+      elif r.startswith(':'):
+        r = r[1:]
       src.append(genfile(r))
   if src:
     cmd.append('$SRCS')
