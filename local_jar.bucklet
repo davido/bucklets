@@ -49,8 +49,7 @@ def local_jar(
       out = srcjar)
     prebuilt_jar(
       name = name + '_src',
-      deps = [':' + name + '__local_src'],
-      binary_jar = genfile(srcjar),
+      binary_jar = ':' + name + '__local_src',
       visibility = visibility,
     )
   else:
@@ -58,8 +57,8 @@ def local_jar(
 
   prebuilt_jar(
     name = name,
-    deps = deps + [':' + name + '__local_bin'],
-    binary_jar = genfile(binjar),
-    source_jar = genfile(srcjar) if srcjar else None,
+    deps = deps,
+    binary_jar = ':' + name + '__local_bin',
+    source_jar = ':' + name + '__local_src' if srcjar else None,
     visibility = visibility,
   )
