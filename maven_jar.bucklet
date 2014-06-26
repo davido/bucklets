@@ -51,6 +51,7 @@ MAVEN_LOCAL = 'MAVEN_LOCAL:'
 def maven_jar(
     name,
     id,
+    license = '',
     exclude = [],
     exclude_java_sources = False,
     unsign = False,
