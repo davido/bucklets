@@ -62,7 +62,15 @@ def gerrit_plugin(
     type = 'plugin',
     visibility = ['PUBLIC']):
   from multiprocessing import cpu_count
-  mf_cmd = 'v=$(git describe --always HEAD) && '
+  from os import path
+  ROOT = get_base_path()
+  if path.exists(path.join(ROOT, 'VERSION')):
+    include_defs('//' + path.join(ROOT, 'VERSION'))
+    mf_cmd = 'v=%s && ' % PLUGIN_VERSION
+  elif path.exists(path.join(ROOT, '.git')):
+    mf_cmd = 'v=$(git describe --always HEAD) && '
+  else: # cannot retrieve plugin version, guessing '1.0'
+    mf_cmd = 'v=1.0 && '
   mf_cmd += 'echo "Manifest-Version: 1.0" >$OUT && '
   mf_cmd += 'echo "Gerrit-ApiType: %s" >>$OUT && ' % type
   mf_cmd += 'echo "Implementation-Version: $v" >>$OUT && '
