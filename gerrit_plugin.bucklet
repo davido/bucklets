@@ -45,8 +45,10 @@ GWT_COMPILER_ARGS = [
   '-XdisableCastChecking',
 ]
 
-GWT_PLUGIN_DEPS = [
-  '//lib/gerrit:gwtui-api',
+GERRIT_PLUGIN_API = ['//lib/gerrit:plugin-api']
+GERRIT_GWT_API = ['//lib/gerrit:gwtui-api']
+
+GWT_DEPS = [
   '//lib/gwt:user',
   '//lib/gwt:dev',
 ]
@@ -86,14 +88,14 @@ def gerrit_plugin(
   gwt_deps = []
   static_jars = []
   if gwt_module:
-    gwt_deps = GWT_PLUGIN_DEPS
+    gwt_deps = GWT_DEPS + GERRIT_GWT_API
     static_jars = [':%s-static-jar' % name]
   java_library(
     name = name + '__plugin',
     srcs = srcs,
     resources = resources,
     deps = deps,
-    provided_deps = ['//lib/gerrit:%s-api' % type] + provided_deps + gwt_deps,
+    provided_deps = GERRIT_PLUGIN_API + provided_deps + gwt_deps,
     visibility = ['PUBLIC'],
   )
   if gwt_module:
