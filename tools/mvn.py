@@ -22,10 +22,10 @@ from sys import stderr
 from util import check_output
 
 def mvn(action):
-  return ['mvn', '--file', path.join(ROOT, 'fake_pom_%s.xml' % action)]
+  return ['mvn', '--file', path.join(root, 'fake_pom_%s.xml' % action)]
 
 def mvn(action):
-  return ['mvn', '--file', path.join(ROOT, 'fake_pom_%s.xml' % action)]
+  return ['mvn', '--file', path.join(root, 'fake_pom_%s.xml' % action)]
 
 opts = OptionParser()
 opts.add_option('--repository', help='maven repository id')
@@ -49,9 +49,9 @@ common = [
   '-Dversion=%s' % args.v,
 ]
 
-ROOT = path.abspath(__file__)
-for _ in range(0, 3):
-  ROOT = path.dirname(ROOT)
+root = path.abspath(__file__)
+while not path.exists(path.join(root, '.buckconfig')):
+  root = path.dirname(root)
 
 if 'install' == args.a:
   cmd = mvn(args.a) + ['install:install-file'] + common
