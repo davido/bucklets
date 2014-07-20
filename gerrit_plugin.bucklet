@@ -53,6 +53,8 @@ GWT_DEPS = [
   '//lib/gwt:dev',
 ]
 
+__standalone_mode__ = True
+
 def gerrit_plugin(
     name,
     deps = [],
