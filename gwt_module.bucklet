@@ -26,4 +26,9 @@ def gwt_module(
     kw['resources'] += [gwt_xml]
   if 'srcs' in kw:
     kw['resources'] += kw['srcs']
+
+  # Buck does not accept duplicate resources. Callers may have
+  # included gwt_xml or srcs as part of resources, so de-dupe.
+  kw['resources'] = list(set(kw['resources']))
+
   java_library(**kw)
