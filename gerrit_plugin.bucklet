@@ -66,8 +66,16 @@ def gerrit_plugin(
     type = 'plugin',
     visibility = ['PUBLIC']):
   from multiprocessing import cpu_count
-  from os import path
-  ROOT = get_base_path()
+  from os import path,getcwd
+  # TODO(davido): Remove this hack and replace all this mess with just
+  # ROOT = get_base_path()
+  # when this issue is fixed:
+  # https://github.com/facebook/buck/issues/200
+  # Or this PR is merged:
+  # https://github.com/facebook/buck/pull/201
+  ROOT = getcwd()
+  while not path.lexists(path.join(ROOT, '.buckconfig')):
+    ROOT = path.dirname(ROOT)
   if path.exists(path.join(ROOT, 'VERSION')):
     include_defs('//' + path.join(ROOT, 'VERSION'))
     mf_cmd = 'v=%s && ' % PLUGIN_VERSION
