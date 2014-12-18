@@ -80,7 +80,7 @@ def gerrit_plugin(
     include_defs('//' + path.join(ROOT, 'VERSION'))
     mf_cmd = 'v=%s && ' % PLUGIN_VERSION
   elif path.exists(path.join(ROOT, '.git')):
-    mf_cmd = 'v=$(git describe --always HEAD) && '
+    mf_cmd = 'v=\$(git describe --always HEAD) && '
   else: # cannot retrieve plugin version, guessing '1.0'
     mf_cmd = 'v=1.0 && '
   mf_cmd += 'echo "Manifest-Version: 1.0" >$OUT && '
