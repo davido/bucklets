@@ -20,6 +20,10 @@
 #     //lib/gerrit:plugin-gwtui
 #     //lib/gwt:user
 #     //lib/gwt:dev
+#     //lib/ow2:ow2-asm
+#     //lib/ow2:ow2-asm-analysis
+#     //lib/ow2:ow2-asm-util
+#     //lib/ow2:ow2-asm-tree
 #
 # To provide it maven_jar() or bucklet can be used in lib/gerrit/BUCK:
 #
@@ -51,6 +55,10 @@ GERRIT_GWT_API = ['//lib/gerrit:gwtui-api']
 GWT_DEPS = [
   '//lib/gwt:user',
   '//lib/gwt:dev',
+  '//lib/ow2:ow2-asm',
+  '//lib/ow2:ow2-asm-analysis',
+  '//lib/ow2:ow2-asm-util',
+  '//lib/ow2:ow2-asm-tree',
 ]
 
 STANDALONE_MODE = True
