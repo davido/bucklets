@@ -75,15 +75,23 @@ def maven_jar(
   from os import path
 
   parts = id.split(':')
-  if len(parts) != 3:
-    raise NameError('expected id="groupId:artifactId:version"')
-  group, artifact, version = parts
+  if len(parts) not in [3, 4]:
+    raise NameError('%s:\nexpected id="groupId:artifactId:version[:classifier]"'
+                    % id)
+  if len(parts) == 4:
+    group, artifact, version, classifier = parts
+  else:
+    group, artifact, version = parts
+    classifier = None
 
   if 'SNAPSHOT' in version and repository != MAVEN_LOCAL:
     file_version = version.replace('-SNAPSHOT', '')
     version = version.split('-SNAPSHOT')[0] + '-SNAPSHOT'
   else:
     file_version = version
+
+  if classifier is not None:
+    file_version += '-' + classifier
 
   jar = path.join(name, artifact.lower() + '-' + file_version)
   url = '/'.join([
