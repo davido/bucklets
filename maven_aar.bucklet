@@ -1,0 +1,130 @@
+# Copyright (C) 2013 The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Fetch artifacts from Maven repository
+#
+# name: (required) The name of the rule.
+# id: (required) Maven group id, artifact id and version in the form: g:a:v
+# exclude: (defaults to []) Rules to exlude from resulting maven AAR
+# exclude_java_sources: (default to False) should java source be included
+# unsign: (default to False): should this archive be unsigned
+# deps: (defaults to []) Rules (usually other java_library rules) that are
+#        included as transitive dependency of this Maven AAR
+# exported_deps: (defaults to []) Whether or not depending on this rule should
+#        also transitively pull in all of its dependencies.
+# sha1: SHA-1 of binary artifact
+# bin_sha1: SHA-1 of binary artifact
+# src_sha1: SHA-1 of src artifact
+# repository: (default to MAVEN_CENTRAL) repository name
+# attach_source: (default to True): should the sources be fetched
+# visibility (defaults to ['PUBLIC']) List of build target patterns that
+# identify the build rules that can include this rule in its deps.
+#
+# Example:
+#
+# maven_aar(
+#   name = 'guava',
+#   id = 'com.google.guava:guava:16.0',
+#   sha1 = 'aca09d2e5e8416bf91550e72281958e35460be52',
+# )
+#
+
+GERRIT = 'GERRIT:'
+GERRIT_API = 'GERRIT_API:'
+ECLIPSE = 'ECLIPSE:'
+MAVEN_CENTRAL = 'MAVEN_CENTRAL:'
+MAVEN_LOCAL = 'MAVEN_LOCAL:'
+
+def define_license(name):
+  n = 'LICENSE-' + name
+  genrule(
+    name = n,
+    cmd = 'ln -s $SRCS $OUT',
+    srcs = [n],
+    out = n,
+    visibility = ['PUBLIC'],
+  )
+
+def maven_aar(
+    name,
+    id,
+    license = '',
+    exclude = [],
+    unsign = False,
+    deps = [],
+    exported_deps = [],
+    sha1 = '',
+    repository = MAVEN_CENTRAL,
+    visibility = ['PUBLIC'],
+    local_license = False):
+  from os import path
+
+  parts = id.split(':')
+  if len(parts) != 3:
+    raise NameError('expected id="groupId:artifactId:version"')
+  group, artifact, version = parts
+
+  if 'SNAPSHOT' in version and repository != MAVEN_LOCAL:
+    file_version = version.replace('-SNAPSHOT', '')
+    version = version.split('-SNAPSHOT')[0] + '-SNAPSHOT'
+  else:
+    file_version = version
+
+  aar = path.join(name, artifact.lower() + '-' + file_version)
+  url = '/'.join([
+    repository,
+    group.replace('.', '/'), artifact, version,
+    artifact + '-' + file_version])
+
+  binaar = aar + '.aar'
+  binurl = url + '.aar'
+
+  cmd = ['$(exe //bucklets/tools:download_file)', '-o', '$OUT', '-u', binurl]
+  if sha1:
+    cmd.extend(['-v', sha1])
+  for x in exclude:
+    cmd.extend(['-x', x])
+  if unsign:
+    cmd.append('--unsign')
+
+  genrule(
+    name = name + '__download_bin',
+    cmd = ' '.join(cmd),
+    deps = ['//bucklets/tools:download_file'],
+    out = binaar,
+  )
+
+  license = ':LICENSE-' + license
+  if not local_license:
+    license = '//lib' + license
+  license = [license]
+
+  if exported_deps:
+    android_prebuilt_aar(
+      name = name + '__aar',
+      deps = deps,
+      aar = ':' + name + '__download_bin',
+    )
+    java_library(
+      name = name,
+      exported_deps = exported_deps + [':' + name + '__aar'],
+      visibility = visibility,
+    )
+  else:
+    android_prebuilt_aar(
+      name = name,
+      deps = deps,
+      aar = ':' + name + '__download_bin',
+      visibility = visibility,
+    )
