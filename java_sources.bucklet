@@ -28,7 +28,13 @@ def java_sources(
     visibility = []
   ):
   java_library(
-    name = name,
+    name = name + '__tmp',
     resources = srcs,
     visibility = visibility,
+  )
+  java_binary(
+    name = name,
+    deps = [
+      ':%s__tmp' % name,
+    ],
   )
