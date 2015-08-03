@@ -72,7 +72,8 @@ def gerrit_plugin(
     gwt_module = None,
     manifest_entries = [],
     type = 'plugin',
-    visibility = ['PUBLIC']):
+    visibility = ['PUBLIC'],
+    target_suffix = ''):
   from multiprocessing import cpu_count
   from os import path,getcwd
   # TODO(davido): Remove this hack and replace all this mess with just
@@ -150,7 +151,7 @@ def gerrit_plugin(
     )
 
   java_binary(
-    name = name,
+    name = name + target_suffix,
     manifest_file = ':%s__manifest' % name,
     merge_manifests = False,
     deps = [
