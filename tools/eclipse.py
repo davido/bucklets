@@ -91,7 +91,7 @@ def gen_classpath():
   for p in query_classpath(MAIN):
     m = java_library.match(p)
     if m:
-      src.add(m.group(1))
+      src.add(m.group(1).lstrip('/'))
     else:
       lib.add(p)
 
