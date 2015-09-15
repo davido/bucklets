@@ -148,7 +148,7 @@ try:
 
   try:
     targets = ['//bucklets/tools:buck.properties'] + MAIN
-    check_call(['buck', 'build'] + targets)
+    check_call(['buck', 'build', '--deep'] + targets)
   except CalledProcessError as err:
     exit(1)
 except KeyboardInterrupt:
