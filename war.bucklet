@@ -35,20 +35,17 @@ def war(
     ):
   cmd = ['$(exe //bucklets/tools:pack_war)', '-o', '$OUT', '--tmp', '$TMP']
   for l in libs:
-    cmd.extend(['--lib', l])
+    cmd.extend(['--lib', '$(classpath %s)' % l])
   for l in pgmlibs:
-    cmd.extend(['--pgmlib', l])
+    cmd.extend(['--pgmlib', '$(classpath %s)' % l])
 
-  dep = []
   if context:
     for t in context:
-      dep.append(t)
       cmd.append('$(location %s)' % t)
 
   genrule(
     name = name,
     cmd = ' '.join(cmd),
-    deps = libs + pgmlibs + dep + ['//bucklets/tools:pack_war'],
     out = name + '.war',
     visibility = visibility,
   )

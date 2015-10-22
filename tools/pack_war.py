@@ -18,7 +18,6 @@ from optparse import OptionParser
 from os import getcwd, chdir, makedirs, path, symlink
 from subprocess import check_call
 import sys
-from util import check_output
 
 opts = OptionParser()
 opts.add_option('-o', help='path to write WAR to')
@@ -31,12 +30,14 @@ war = args.tmp
 root = war[:war.index('buck-out')]
 jars = set()
 
+def prune(l):
+ return [j[j.find('buck-out'):] for e in l for j in e.split(':')]
+
 def link_jars(libs, directory):
   makedirs(directory)
   while not path.isfile('.buckconfig'):
     chdir('..')
-  cp = check_output(['buck', 'audit', 'classpath'] + libs)
-  for j in cp.strip().splitlines():
+  for j in libs:
     if j not in jars:
       jars.add(j)
       n = path.basename(j)
@@ -45,9 +46,9 @@ def link_jars(libs, directory):
       symlink(path.join(root, j), path.join(directory, n))
 
 if args.lib:
-  link_jars(args.lib, path.join(war, 'WEB-INF', 'lib'))
+  link_jars(prune(args.lib), path.join(war, 'WEB-INF', 'lib'))
 if args.pgmlib:
-  link_jars(args.pgmlib, path.join(war, 'WEB-INF', 'pgm-lib'))
+  link_jars(prune(args.pgmlib), path.join(war, 'WEB-INF', 'pgm-lib'))
 try:
   for s in ctx:
     check_call(['unzip', '-q', '-d', war, s])
