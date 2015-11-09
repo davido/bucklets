@@ -120,7 +120,6 @@ def maven_jar(
   genrule(
     name = name + '__download_bin',
     cmd = ' '.join(cmd),
-    deps = ['//bucklets/tools:download_file'],
     out = binjar,
   )
 
@@ -136,7 +135,6 @@ def maven_jar(
     genrule(
       name = name + '__download_src',
       cmd = ' '.join(cmd),
-      deps = ['//bucklets/tools:download_file'],
       out = srcjar,
     )
     prebuilt_jar(

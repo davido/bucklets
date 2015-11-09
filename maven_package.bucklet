@@ -40,17 +40,14 @@ def maven_package(
     '-v', version,
     '-o', '$OUT',
   ]
-  dep = []
 
   for type,d in [('jar', jar), ('java-source', src), ('javadoc', doc)]:
     for a,t in d.iteritems():
       cmd.append('-s %s:%s:$(location %s)' % (a,type,t))
-      dep.append(t)
 
   genrule(
     name = 'install',
     cmd = ' '.join(cmd + ['-a', 'install']),
-    deps = dep + ['//bucklets/tools:mvn'],
     out = 'install.info',
   )
 
@@ -61,6 +58,5 @@ def maven_package(
         '-a', 'deploy',
         '--repository', repository,
         '--url', url]),
-      deps = dep + ['//bucklets/tools:mvn'],
       out = 'deploy.info',
     )

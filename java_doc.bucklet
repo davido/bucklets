@@ -55,7 +55,6 @@ def java_doc(
       '-d $TMP',
     ]) + ';jar cf $OUT -C $TMP .',
     srcs = srcs,
-    deps = deps,
     out = name + '.jar',
     visibility = visibility,
 )
