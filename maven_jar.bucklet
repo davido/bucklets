@@ -44,7 +44,6 @@
 
 GERRIT = 'GERRIT:'
 GERRIT_API = 'GERRIT_API:'
-ECLIPSE = 'ECLIPSE:'
 MAVEN_CENTRAL = 'MAVEN_CENTRAL:'
 MAVEN_LOCAL = 'MAVEN_LOCAL:'
 
@@ -84,7 +83,13 @@ def maven_jar(
     group, artifact, version = parts
     classifier = None
 
-  if 'SNAPSHOT' in version and repository != MAVEN_LOCAL:
+  # SNAPSHOT artifacts are handled differently on Google storage bucket:
+  # 'SNAPSHOT' is discarded from the directory name. However on other
+  # Maven repositories, most notable local repository located in
+  # ~/.m2/repository (and is supported through MAVEN_LOCAL repository)
+  # it must be preserved, otherwise the artifact wouldn't be found.
+  # Atm the SNAPSHOT part is only discarded for Google storage bucket.
+  if 'SNAPSHOT' in version and repository.startswith(GERRIT):
     file_version = version.replace('-SNAPSHOT', '')
     version = version.split('-SNAPSHOT')[0] + '-SNAPSHOT'
   else:
@@ -94,6 +99,7 @@ def maven_jar(
     file_version += '-' + classifier
 
   jar = path.join(name, artifact.lower() + '-' + file_version)
+
   url = '/'.join([
     repository,
     group.replace('.', '/'), artifact, version,
@@ -118,11 +124,10 @@ def maven_jar(
     cmd.append('--unsign')
 
   genrule(
-    name = name + '__download_bin',
+    name = '%s__download_bin' % name,
     cmd = ' '.join(cmd),
     out = binjar,
   )
-
   license = ':LICENSE-' + license
   if not local_license:
     license = '//lib' + license
@@ -133,29 +138,30 @@ def maven_jar(
     if src_sha1:
       cmd.extend(['-v', src_sha1])
     genrule(
-      name = name + '__download_src',
+      name = '%s__download_src' % name,
       cmd = ' '.join(cmd),
       out = srcjar,
     )
     prebuilt_jar(
-      name = name + '_src',
-      binary_jar = ':' + name + '__download_src',
+      name = '%s_src' % name,
+      binary_jar = ':%s__download_src' % name,
       visibility = visibility,
     )
   else:
     srcjar = None
     genrule(
-      name = name + '__download_src',
+      name = '%s_src' % name,
       cmd = ':>$OUT',
-      out = '__' + name + '__no_src',
+      out = '__%s__no_src' % name,
     )
 
   if exported_deps:
     prebuilt_jar(
-      name = name + '__jar',
+      name = '%s__jar' % name,
       deps = deps,
-      binary_jar = ':' + name + '__download_bin',
-      source_jar = ':' + name + '__download_src' if srcjar else None,
+      binary_jar = ':%s__download_bin' % name,
+      source_jar = ':%s__download_src' % name if srcjar else None,
+      visibility = visibility,
     )
     java_library(
       name = name,
@@ -166,7 +172,7 @@ def maven_jar(
     prebuilt_jar(
       name = name,
       deps = deps,
-      binary_jar = ':' + name + '__download_bin',
-      source_jar = ':' + name + '__download_src' if srcjar else None,
+      binary_jar = ':%s__download_bin' % name,
+      source_jar = ':%s__download_src' % name if srcjar else None,
       visibility = visibility,
     )

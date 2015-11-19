@@ -31,7 +31,7 @@ JRE = '/'.join([
 ])
 
 ROOT = path.abspath(__file__)
-for _ in range(0, 3):
+while not path.exists(path.join(ROOT, '.buckconfig')):
   ROOT = path.dirname(ROOT)
 
 opts = OptionParser()
@@ -39,14 +39,24 @@ opts.add_option('--src', action='store_true')
 opts.add_option('-n', '--name')
 args, _ = opts.parse_args()
 
-def gen_project():
-  p = path.join(ROOT, '.project')
-  name = args.name if args.name else path.basename(ROOT)
+def _query_classpath(targets):
+  deps = []
+  p = Popen(['buck', 'audit', 'classpath'] + targets, stdout=PIPE)
+  for line in p.stdout:
+    deps.append(line.strip())
+  s = p.wait()
+  if s != 0:
+    exit(s)
+  return deps
+
+
+def gen_project(name, root=ROOT):
+  p = path.join(root, '.project')
   with open(p, 'w') as fd:
     print("""\
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-  <name>%s</name>
+  <name>""" + name + """</name>
   <buildSpec>
     <buildCommand>
       <name>org.eclipse.jdt.core.javabuilder</name>
@@ -56,19 +66,9 @@ def gen_project():
     <nature>org.eclipse.jdt.core.javanature</nature>
   </natures>
 </projectDescription>\
-""" % (name,), file=fd)
+""", file=fd)
 
 def gen_classpath():
-  def query_classpath(targets):
-    deps = []
-    p = Popen(['buck', 'audit', 'classpath'] + targets, stdout=PIPE)
-    for line in p.stdout:
-      deps.append(line.strip())
-    s = p.wait()
-    if s != 0:
-      exit(s)
-    return deps
-
   def make_classpath():
     impl = minidom.getDOMImplementation()
     return impl.createDocument(None, 'classpath', None)
@@ -87,11 +87,11 @@ def gen_classpath():
   src = set()
   lib = set()
 
-  java_library = re.compile(r'[^/]+/gen(.*)/lib__[^/]+__output/[^/]+[.]jar$')
-  for p in query_classpath(MAIN):
+  java_library = re.compile(r'[^/]+/gen/(.*)/lib__[^/]+__output/[^/]+[.]jar$')
+  for p in _query_classpath(MAIN):
     m = java_library.match(p)
     if m:
-      src.add(m.group(1).lstrip('/'))
+      src.add(m.group(1))
     else:
       lib.add(p)
 
@@ -124,7 +124,7 @@ def gen_classpath():
     for j in sorted(libs):
       s = None
       if j.endswith('.jar'):
-        s = j[:-4] + '-src.jar'
+        s = j[:-4] + '_src.jar'
         if not path.exists(s):
           s = None
       classpathentry('lib', j, s)
@@ -143,11 +143,12 @@ try:
     except CalledProcessError as err:
       exit(1)
 
-  gen_project()
+  name = args.name if args.name else path.basename(ROOT)
+  gen_project(name)
   gen_classpath()
 
   try:
-    targets = ['//bucklets/tools:buck.properties'] + MAIN
+    targets = ['//bucklets/tools:buck'] + MAIN
     check_call(['buck', 'build', '--deep'] + targets)
   except CalledProcessError as err:
     exit(1)
