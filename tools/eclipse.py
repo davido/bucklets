@@ -99,9 +99,9 @@ def gen_classpath():
     out = None
 
     if s.startswith('lib/'):
-      out = 'buck-out/eclipse/lib'
+      out = 'eclipse-out/lib'
     elif s.startswith('plugins/'):
-      out = 'buck-out/eclipse/' + s
+      out = 'eclipse-out/' + s
 
     p = path.join(s, 'java')
     if path.exists(p):
@@ -113,7 +113,7 @@ def gen_classpath():
       if out:
         o = out + '/' + env
       elif env == 'test':
-        o = 'buck-out/eclipse/test'
+        o = 'eclipse-out/test'
 
       for srctype in ['java', 'resources']:
         p = path.join(s, 'src', env, srctype)
@@ -130,7 +130,7 @@ def gen_classpath():
       classpathentry('lib', j, s)
 
   classpathentry('con', JRE)
-  classpathentry('output', 'buck-out/eclipse/classes')
+  classpathentry('output', 'eclipse-out/classes')
 
   p = path.join(ROOT, '.classpath')
   with open(p, 'w') as fd:
