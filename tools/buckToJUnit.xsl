@@ -31,8 +31,10 @@ limitations under the License.
       <xsl:variable name="nonEmptyStacks" select="count(testresult[stacktrace != ''])"/>
       <xsl:variable name="failures"
           select="count(testresult[contains(stacktrace, 'java.lang.AssertionError')])"/>
-      <xsl:variable name="errors" select="$nonEmptyStacks - $failures"/>
-      <testsuite failures="{$failures}" time="{func:toMS(@time)}" errors="{$errors}" skipped="0"
+      <xsl:variable name="skipped"
+          select="count(testresult[contains(stacktrace, 'org.junit.internal.AssumptionViolatedException')])"/>
+      <xsl:variable name="errors" select="$nonEmptyStacks - $failures - $skipped"/>
+      <testsuite failures="{$failures}" time="{func:toMS(@time)}" errors="{$errors}" skipped="{$skipped}"
           tests="{$testCount}" name="{@name}">
         <xsl:apply-templates/>
       </testsuite>
@@ -47,7 +49,11 @@ limitations under the License.
 
   <xsl:template match="message"/>
 
-  <xsl:template match="stacktrace[. != '']">
+  <xsl:template match="stacktrace[contains(.,'org.junit.internal.AssumptionViolatedException')]">
+    <skipped/>
+  </xsl:template>
+
+  <xsl:template match="stacktrace[. != '' and not(contains(.,'org.junit.internal.AssumptionViolatedException'))]">
     <failure message="{../message}" type="{substring-before(., ':')}">
       <xsl:value-of select="."/>
     </failure>
