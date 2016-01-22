@@ -19,7 +19,7 @@
 # java_doc(
 #   name = 'javadoc',
 #   title = 'Gitiles API Documentation',
-#   pkg = 'com.google.gitiles',
+#   pkgs = ['com.google.gitiles'],
 #   paths = ['gitiles-servlet/src/main/java'],
 #   srcs = glob([n + '**/*.java' for n in SRCS]),
 #   deps = DEPS,
@@ -29,12 +29,19 @@
 def java_doc(
     name,
     title,
-    pkg,
+    pkgs,
     paths,
     srcs = [],
     deps = [],
-    visibility = []
+    visibility = [],
+    do_it_wrong = False,
+    external_docs = [],
   ):
+  if do_it_wrong:
+    sourcepath = paths
+  else:
+    sourcepath = ['$SRCDIR/' + n for n in paths]
+  external_docs.insert(0, 'http://docs.oracle.com/javase/7/docs/api')
   genrule(
     name = name,
     cmd = ' '.join([
@@ -46,10 +53,11 @@ def java_doc(
       '-charset UTF-8',
       '-notimestamp',
       '-windowtitle "' + title + '"',
-      '-link http://docs.oracle.com/javase/7/docs/api',
-      '-subpackages ' + pkg,
+      ' '.join(['-link %s' % url for url in external_docs]),
+      '-subpackages ',
+      ':'.join(pkgs),
       '-sourcepath ',
-      ':'.join([n for n in paths]),
+      ':'.join(sourcepath),
       ' -classpath ',
       ':'.join(['$(location %s)' % n for n in deps]),
       '-d $TMP',
