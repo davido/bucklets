@@ -87,7 +87,7 @@ def gen_classpath():
   src = set()
   lib = set()
 
-  java_library = re.compile(r'[^/]+/gen(.*)/lib__[^/]+__output/[^/]+[.]jar$')
+  java_library = re.compile('.*/buck-out/gen(.*)/lib__[^/]+__output/[^/]+[.]jar$')
   for p in _query_classpath(MAIN):
     m = java_library.match(p)
     if m:
