@@ -28,13 +28,14 @@ temp_dir = mkdtemp()
 try:
   try:
     check_call(
-      ['curl', '--proxy-anyauth', '-sfo', path.join(temp_dir, 'saxon.jar'),
-       'http://central.maven.org/maven2/net/sf/saxon/Saxon-HE/9.6.0-6/Saxon-HE-9.6.0-6.jar'])
+      ['mvn', 'org.apache.maven.plugins:maven-dependency-plugin:copy',
+       '-Dmdep.stripVersion=true', '-Dartifact=net.sf.saxon:Saxon-HE:9.6.0-6',
+       '-DoutputDirectory=' + temp_dir])
   except OSError as err:
-    print('could not invoke curl: %s\nis curl installed?' % err)
+    print('could not invoke mvn: %s\nis mvn installed?' % err)
     exit(1)
   except CalledProcessError as err:
-    print('error using curl: %s' % err)
+    print('error using mvn: %s' % err)
     exit(1)
 
   buck_report = abspath(args.t)
@@ -44,7 +45,7 @@ try:
   chdir(args.o)
   try:
     check_call(
-      ['java', '-jar', path.join(temp_dir, 'saxon.jar'), '-s:' + buck_report,
+      ['java', '-jar', path.join(temp_dir, 'Saxon-HE.jar'), '-s:' + buck_report,
        '-xsl:' + buck_to_junit_xsl])
   except CalledProcessError as err:
     print('error converting to junit: %s' % err)
