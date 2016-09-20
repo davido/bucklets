@@ -37,6 +37,7 @@ while not path.exists(path.join(ROOT, '.buckconfig')):
 opts = OptionParser()
 opts.add_option('--src', action='store_true')
 opts.add_option('-n', '--name')
+opts.add_option('-x', '--exclude', action='append')
 args, _ = opts.parse_args()
 
 def _query_classpath(targets):
@@ -122,6 +123,8 @@ def gen_classpath():
 
   for libs in [lib]:
     for j in sorted(libs):
+      if excluded(j):
+        continue
       s = None
       if j.endswith('.jar'):
         s = j[:-4] + '_src.jar'
@@ -135,6 +138,13 @@ def gen_classpath():
   p = path.join(ROOT, '.classpath')
   with open(p, 'w') as fd:
     doc.writexml(fd, addindent='\t', newl='\n', encoding='UTF-8')
+
+def excluded(lib):
+  if args.exclude:
+    for x in args.exclude:
+      if x in lib:
+        return True
+  return False
 
 try:
   if args.src:
