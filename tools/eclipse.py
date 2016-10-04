@@ -27,7 +27,7 @@ MAIN = ['//:classpath']
 JRE = '/'.join([
   'org.eclipse.jdt.launching.JRE_CONTAINER',
   'org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType',
-  'JavaSE-1.7',
+  'JavaSE-1.8',
 ])
 
 ROOT = path.abspath(__file__)

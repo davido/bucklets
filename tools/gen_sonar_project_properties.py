@@ -69,7 +69,7 @@ sonar.language=java
 sonar.sources=%s
 sonar.tests=%s
 sonar.sourceEncoding=UTF-8
-sonar.java.source=1.7
+sonar.java.source=1.8
 sonar.java.binaries=%s
 
 sonar.junit.reportsPath=%s
