@@ -41,12 +41,13 @@ def java_doc(
     sourcepath = paths
   else:
     sourcepath = ['$SRCDIR/' + n for n in paths]
-  external_docs.insert(0, 'http://docs.oracle.com/javase/7/docs/api')
+  external_docs.insert(0, 'http://docs.oracle.com/javase/8/docs/api')
   genrule(
     name = name,
     cmd = ' '.join([
       'while ! test -f .buckconfig; do cd ..; done;',
       'javadoc',
+      '-Xdoclint:-missing',
       '-quiet',
       '-protected',
       '-encoding UTF-8',
